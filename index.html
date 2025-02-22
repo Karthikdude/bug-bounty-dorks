@@ -315,6 +315,7 @@
     ]},
     { category: "Exposed Git, SVN, and Config Files", dorks: [
         "site:*.target.com inurl:.git",
+        "site:*.target.com inurl:.git/config",
         "site:*.target.com inurl:.svn",
         "site:*.target.com inurl:.env",
         "site:*.target.com inurl:.htaccess",
@@ -504,7 +505,53 @@
         "site:*.target.com ext:txt",
         "site:*.target.com inurl:message",
         "site:*.target.com inurl:conversation"
-    ]}
+    ]},
+    { category: "Common CVE's", dorks: [
+    "site:*.target.com inurl:/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php",
+    "site:*.target.com inurl:/wp-content/plugins/wp-file-manager/readme.txt",
+    "site:*.target.com \"/wp-json/wp/v2/users\"",
+    "site:*.target.com inurl:/setup.cgi?next_file=netgear.cfg",
+    "site:*.target.com intitle:\"Dashboard\" intext:\"Joomla!\"",
+    "site:*.target.com inurl:/solr/admin/cores?wt=json",
+    "site:*.target.com inurl:/_search intext:\"elastic\"",
+    "site:*.target.com inurl:/cgi-bin/kerbynet",
+    "site:*.target.com inurl:/vendor/phpunit/",
+    "site:*.target.com inurl:/owa/auth/logon.aspx",
+    "site:*.target.com inurl:/wp-content/plugins/revslider/",
+    "site:*.target.com inurl:/wp-content/plugins/duplicator/",
+    "site:*.target.com inurl:/autodiscover/autodiscover.xml",
+    "site:*.target.com inurl:/wp-content/plugins/wpdiscuz/",
+    "site:*.target.com inurl:/wp-content/plugins/easy-wp-smtp/"
+     "site:*.target.com inurl:/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php",
+    "site:*.target.com inurl:/wp-content/plugins/wp-file-manager/readme.txt",
+    "site:*.target.com \"/wp-json/wp/v2/users\"",
+    "site:*.target.com inurl:/setup.cgi?next_file=netgear.cfg",
+    "site:*.target.com intitle:\"Dashboard\" intext:\"Joomla!\"",
+    "site:*.target.com inurl:/solr/admin/cores?wt=json",
+    "site:*.target.com inurl:/_search intext:\"elastic\"",
+    "site:*.target.com inurl:/cgi-bin/kerbynet",
+    "site:*.target.com inurl:/vendor/phpunit/",
+    "site:*.target.com inurl:/owa/auth/logon.aspx",
+    "site:*.target.com inurl:/wp-content/plugins/revslider/",
+    "site:*.target.com inurl:/wp-content/plugins/duplicator/",
+    "site:*.target.com inurl:/autodiscover/autodiscover.xml",
+    "site:*.target.com inurl:/wp-content/plugins/wpdiscuz/",
+    "site:*.target.com inurl:/wp-content/plugins/easy-wp-smtp/",
+    "site:*.target.com inurl:/api/v1/debug",
+    "site:*.target.com inurl:/admin/api",
+    "site:*.target.com inurl:/system/debug",
+    "site:*.target.com inurl:/mobile/api/v2/login",
+    "site:*.target.com inurl:/wp-content/plugins/ultimate-member/",
+    "site:*.target.com inurl:/cgi-bin/config.cgi",
+    "site:*.target.com inurl:/index.php?option=com_",
+    "site:*.target.com inurl:/dashboard intext:\"vulnerable\"",
+    "site:*.target.com inurl:/adminer.php",
+    "site:*.target.com inurl:/api/graphql",
+    "site:*.target.com inurl:/webdav",
+    "site:*.target.com inurl:debug=1",
+    "site:*.target.com inurl:/data/backup"
+]}
+
 
             ];
 
