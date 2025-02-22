@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Dorks for Bug Bounty</title>
+    <style>
+        :root {
+            --primary-color: #1db954; /* Neon green for a hacker vibe */
+            --background-color: #0d0d0d; /* Darker background */
+            --text-color: #e0e0e0; /* Lighter text for contrast */
+            --accent-color: #ff6f61; /* Accent color for highlights */
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+    
+        body {
+            font-family: 'Courier New', Courier, monospace; /* Monospace font for a tech feel */
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+    
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            animation: glow 2s infinite;
+        }
+    
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 30px var(--primary-color);
+            }
+            50% {
+                text-shadow: 0 0 20px var(--accent-color), 0 0 30px var(--accent-color), 0 0 40px var(--accent-color);
+            }
+        }
+    
+        .search-container {
+            margin: 40px 0;
+            text-align: center;
+        }
+    
+        label {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #888;
+        }
+    
+        input {
+            width: 100%;
+            max-width: 500px;
+            font-size: 1.1em;
+            padding: 12px 20px;
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+    
+        input:focus {
+            outline: none;
+            border-bottom-color: var(--accent-color);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+    
+        .social-links {
+            text-align: center;
+            margin: 20px 0;
+        }
+    
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 8px 16px;
+            color: #888;
+            transition: color 0.3s ease;
+        }
+    
+        .social-links a:hover {
+            color: var(--accent-color);
+        }
+    
+        #dorkList {
+            margin: 40px 0;
+            padding: 0;
+        }
+    
+        li {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: transform 0.2s ease;
+        }
+    
+        li:hover {
+            transform: translateX(10px);
+        }
+    
+        a {
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.2s ease;
+        }
+    
+        a:hover {
+            color: var(--accent-color);
+        }
+    
+        p.description {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    
+        section {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+    
+        h2 {
+            font-size: 1.8em;
+            color: #888;
+            margin-bottom: 20px;
+        }
+    
+        #tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #888;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            z-index: 1000;
+            max-width: 300px;
+            display: none;
+        }
+    
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+    
+            input {
+                width: calc(100% - 40px);
+            }
+        }
+    </style>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Google Dorks for Bug Bounty</h1>
+
+        <div class="social-links">
+            <a href="https://github.com/Karthikdude" target="_blank" rel="noopener">
+                GitHub Profile
+            </a>
+            <a href="https://karthik-s-sathyan.vercel.app" target="_blank" rel="noopener">
+                Personal Website
+            </a>
+        </div>
+
+        <div class="search-container">
+            <label for="domainInput">Enter a domain:</label>
+            <input type="text" id="domainInput" placeholder="example.com" oninput="updateDomain()">
+        </div>
+
+        <div id="tooltip">For multiple domains, separate by comma. e.g., example1.com, example2.com</div>
+    </div>
+
+    <ul id="dorkList"></ul>
+
+    <section>
+        <h2>Additional Resources</h2>
+        <ul class="link-list">
+            <li><a href="https://github.com/Karthikdude/google-dorks-bug-bounty/" target="_blank" rel="noopener">Google Dorks For Bug Bounty</a></li>
+        </ul>
+    </section>
+
+    <script>
+        const domainInput = document.getElementById('domainInput');
+        const tooltip = document.getElementById('tooltip');
+
+        domainInput.addEventListener('mouseover', function() {
+            tooltip.style.display = 'block';
+            tooltip.style.left = domainInput.offsetLeft + 'px';
+            tooltip.style.top = (domainInput.offsetTop + domainInput.offsetHeight + 5) + 'px';
+        });
+
+        domainInput.addEventListener('mouseout', function() {
+            tooltip.style.display = 'none';
+        });
+
+        let originalDorks = [];
+
+        async function fetchDorks() {
+            const dorks = [
+    { category: "Admin Panel & Login Pages", dorks: [
+        "site:*.target.com inurl:admin",
+        "site:*.target.com intitle:login",
+        "site:*.target.com inurl:admin intitle:admin",
+        "site:*.target.com intext:admin",
+        "intitle:/admin site:*.target.com",
+        "site:*.target.com inurl:adminpanel",
+        "site:*.target.com inurl:dashboard",
+        "site:*.target.com inurl:cpanel"
+    ]},
+    { category: "Sensitive Files & Exposed Credentials", dorks: [
+        "site:*.target.com ext:log | ext:txt | ext:env | ext:json | ext:sql | ext:yaml",
+        "site:*.target.com ext:conf | ext:ini | ext:xml | ext:php intitle:\"index of\"",
+        "site:*.target.com ext:log \"password\"",
+        "site:*.target.com ext:env \"APP_KEY\"",
+        "site:*.target.com ext:env \"DB_PASSWORD\"",
+        "site:*.target.com ext:json \"API_KEY\"",
+        "site:*.target.com ext:php \"config\"",
+        "site:*.target.com ext:sql | ext:xml | ext:csv",
+        "site:*.target.com intext:\"password\" filetype:txt",
+        "site:*.target.com inurl:backup ext:zip",
+        "site:*.target.com ext:pem \"private key\"",
+        "site:*.target.com ext:key \"secret\""
+    ]},
+    { category: "Exposed Directories & Open Listings", dorks: [
+        "site:*.target.com intitle:\"index of\"",
+        "site:*.target.com intitle:\"index of /\" \"parent directory\"",
+        "site:*.target.com intitle:\"index of /config\"",
+        "site:*.target.com intitle:\"index of /backup\"",
+        "site:*.target.com intitle:\"index of /database\"",
+        "site:*.target.com intitle:\"Index Of\" \"parent directory\"",
+        "site:*.target.com intitle:\"Index Of\" \"config\"",
+        "site:*.target.com intitle:\"index of\" \"uploads\"",
+        "site:*.target.com intitle:\"index of\" \"logs\""
+    ]},
+    { category: "Misconfigured Web Apps & Debug Mode", dorks: [
+        "site:*.target.com inurl:debug",
+        "site:*.target.com \"Warning: mysqli::mysqli()\"",
+        "site:*.target.com inurl:phpinfo",
+        "site:*.target.com inurl:phpinfo.php",
+        "site:*.target.com \"Fatal error\" filetype:php",
+        "site:*.target.com inurl:wp-config.php",
+        "site:*.target.com inurl:env",
+        "site:*.target.com \"stack trace\"",
+        "site:*.target.com \"error log\"",
+        "site:*.target.com \"debug mode\""
+    ]},
+    { category: "SQL Errors & Database Leaks", dorks: [
+        "site:*.target.com intext:\"SQL syntax error\"",
+        "site:*.target.com intext:\"mysql_fetch_array()\"",
+        "site:*.target.com \"Error executing database query\"",
+        "site:*.target.com \"supplied argument is not a valid MySQL\"",
+        "site:*.target.com ext:sql \"dump\"",
+        "site:*.target.com ext:sql \"backup\"",
+        "site:*.target.com intext:\"database error\""
+    ]},
+    { category: "Exposed Git, SVN, and Config Files", dorks: [
+        "site:*.target.com inurl:.git",
+        "site:*.target.com inurl:.svn",
+        "site:*.target.com inurl:.env",
+        "site:*.target.com inurl:.htaccess",
+        "site:*.target.com inurl:.bzr",
+        "site:*.target.com inurl:.hg",
+        "site:*.target.com inurl:config.php",
+        "site:*.target.com inurl:settings.php"
+    ]},
+    { category: "API Keys & Tokens in Public Repositories", dorks: [
+        "site:github.com \"*.target.com\" \"API_KEY\"",
+        "site:github.com \"*.target.com\" \"access_token\"",
+        "site:pastebin.com \"*.target.com\" \"password\"",
+        "site:github.com \"*.target.com\" \"bearer token\"",
+        "site:github.com \"*.target.com\" \"client secret\""
+    ]},
+    { category: "Cloud Buckets & Storage Leaks", dorks: [
+        "site:*.target.com ext:json \"s3.amazonaws.com\"",
+        "site:*.target.com inurl:\"/storage/\"",
+        "site:*.target.com inurl:\"/uploads/\""
+    ]},
+    { category: "Web Technology Identification", dorks: [
+        "site:*.target.com -www inurl:/wp-content/",
+        "site:*.target.com \"X-Powered-By\"",
+        "site:*.target.com \"Server:\"",
+        "site:*.target.com \"React\"",
+        "site:*.target.com \"Angular\""
+    ]},
+    { category: "Subdomains & Assets Enumeration", dorks: [
+        "site:*.*.target.com",
+        "site:*.*.target.com -www",
+        "inurl:*.target.com -www",
+        "site:*.target.com inurl:assets",
+        "site:*.target.com inurl:images"
+    ]},
+    { category: "Exposed Backups & Old Files", dorks: [
+        "site:*.target.com ext:bak | ext:old | ext:swp | ext:tmp | ext:orig",
+        "site:*.target.com inurl:backup",
+        "site:*.target.com inurl:old",
+        "site:*.target.com inurl:archive",
+        "site:*.target.com ext:zip \"backup\"",
+        "site:*.target.com ext:rar \"backup\""
+    ]},
+    { category: "Default Login Pages & Test Environments", dorks: [
+        "site:*.target.com inurl:test",
+        "site:*.target.com inurl:staging",
+        "site:*.target.com inurl:dev",
+        "site:*.target.com inurl:qa",
+        "site:*.target.com inurl:demo",
+        "site:*.target.com inurl:adminlogin",
+        "site:*.target.com inurl:login.php"
+    ]},
+    { category: "Exposed WordPress Sensitive Files", dorks: [
+        "site:*.target.com inurl:wp-content",
+        "site:*.target.com inurl:wp-includes",
+        "site:*.target.com inurl:wp-admin",
+        "site:*.target.com inurl:wp-json/wp/v2/users",
+        "site:*.target.com inurl:wp-config.php",
+        "site:*.target.com inurl:wp-login.php"
+    ]},
+    { category: "JIRA & Bug Tracking System Leaks", dorks: [
+        "site:*.target.com inurl:jira",
+        "site:*.target.com intext:\"JIRA\"",
+        "site:*.target.com inurl:bug",
+        "site:*.target.com inurl:ticket",
+        "site:*.target.com inurl:issue",
+        "site:*.target.com inurl:tracker"
+    ]},
+    { category: "Open API Endpoints & Swagger Docs", dorks: [
+        "site:*.target.com inurl:/swagger",
+        "site:*.target.com inurl:/api-docs",
+        "site:*.target.com inurl:/graphql",
+        "site:*.target.com inurl:/v2/api-docs",
+        "site:*.target.com inurl:/api/v1",
+        "site:*.target.com inurl:/api/v2"
+    ]},
+    { category: "Exposed Docker, Kubernetes & Cloud Configs", dorks: [
+        "site:*.target.com inurl:kube",
+        "site:*.target.com inurl:.docker",
+        "site:*.target.com inurl:docker-compose.yml",
+        "site:*.target.com inurl:.kube/config",
+        "site:*.target.com inurl:kubernetes",
+        "site:*.target.com inurl:helm"
+    ]},
+    { category: "Exposed Payment Gateways & Transactions", dorks: [
+        "site:*.target.com inurl:payment",
+        "site:*.target.com inurl:invoice",
+        "site:*.target.com inurl:transaction",
+        "site:*.target.com inurl:checkout",
+        "site:*.target.com inurl:order",
+        "site:*.target.com inurl:cart"
+    ]},
+    { category: "Sensitive Information in PDFs & Documents", dorks: [
+        "site:*.target.com ext:pdf | ext:doc | ext:xls | ext:ppt",
+        "site:*.target.com \"confidential\" filetype:pdf",
+        "site:*.target.com \"internal use only\" filetype:xls",
+        "site:*.target.com \"not for distribution\" filetype:doc",
+        "site:*.target.com \"proprietary\" filetype:pdf",
+        "site:*.target.com \"restricted\" filetype:doc"
+    ]},
+    { category: "Webcams & IoT Devices", dorks: [
+        "inurl:\"view.shtml\"",
+        "inurl:\"viewerframe?mode=\"",
+        "inurl:\"webcam.html\"",
+        "intitle:\"Live View / - AXIS\"",
+        "inurl:\"video.cgi\"",
+        "inurl:\"mjpg/video.mjpg\""
+    ]},
+    { category: "Exposed Jenkins, CI/CD & Development Tools", dorks: [
+        "site:*.target.com inurl:jenkins",
+        "site:*.target.com inurl:gitlab",
+        "site:*.target.com inurl:teamcity",
+        "site:*.target.com inurl:builds",
+        "site:*.target.com inurl:admin-panel",
+        "site:*.target.com intitle:\"Admin Login\"",
+        "site:*.target.com inurl:login.php",
+        "site:*.target.com inurl:ci",
+        "site:*.target.com inurl:cd"
+    ]},
+    { category: "Open Redirects and Other Vulnerabilities", dorks: [
+        "site:*.target.com inurl:redirect",
+        "site:*.target.com inurl:logout",
+        "site:*.target.com inurl:error",
+        "site:*.target.com inurl:callback",
+        "site:*.target.com inurl:return",
+        "site:*.target.com inurl:next"
+    ]},
+    { category: "Exposed Email Archives & Mailboxes", dorks: [
+        "site:*.target.com inurl:mail",
+        "site:*.target.com inurl:webmail",
+        "site:*.target.com ext:eml",
+        "site:*.target.com ext:mbox",
+        "site:*.target.com inurl:email",
+        "site:*.target.com inurl:inbox"
+    ]},
+    { category: "Exposed FTP & File Sharing Services", dorks: [
+        "site:*.target.com inurl:ftp",
+        "site:*.target.com intitle:\"index of\" \"parent directory\"",
+        "site:*.target.com ext:rar",
+        "site:*.target.com ext:zip",
+        "site:*.target.com inurl:download",
+        "site:*.target.com inurl:upload"
+    ]},
+    { category: "Exposed Monitoring & Logging Systems", dorks: [
+        "site:*.target.com inurl:monitor",
+        "site:*.target.com inurl:logs",
+        "site:*.target.com ext:log",
+        "site:*.target.com intitle:\"log viewer\"",
+        "site:*.target.com inurl:metrics",
+        "site:*.target.com inurl:stats"
+    ]},
+    { category: "Exposed Remote Access & VPN Configurations", dorks: [
+        "site:*.target.com inurl:vpn",
+        "site:*.target.com inurl:remote",
+        "site:*.target.com ext:ovpn",
+        "site:*.target.com ext:conf",
+        "site:*.target.com inurl:config",
+        "site:*.target.com inurl:access"
+    ]},
+    { category: "Exposed Network Devices & Configurations", dorks: [
+        "site:*.target.com inurl:router",
+        "site:*.target.com inurl:switch",
+        "site:*.target.com ext:cfg",
+        "site:*.target.com ext:conf",
+        "site:*.target.com inurl:network",
+        "site:*.target.com inurl:device"
+    ]},
+    { category: "Exposed Database Backups & Dumps", dorks: [
+        "site:*.target.com ext:sql",
+        "site:*.target.com ext:bak",
+        "site:*.target.com inurl:backup",
+        "site:*.target.com inurl:dump",
+        "site:*.target.com ext:mdb",
+        "site:*.target.com ext:db"
+    ]},
+    { category: "Exposed Source Code & Repositories", dorks: [
+        "site:*.target.com inurl:git",
+        "site:*.target.com inurl:svn",
+        "site:*.target.com ext:php",
+        "site:*.target.com ext:js",
+        "site:*.target.com inurl:source",
+        "site:*.target.com inurl:repo"
+    ]},
+    { category: "Exposed Chat & Messaging Systems", dorks: [
+        "site:*.target.com inurl:chat",
+        "site:*.target.com inurl:messaging",
+        "site:*.target.com ext:log",
+        "site:*.target.com ext:txt",
+        "site:*.target.com inurl:message",
+        "site:*.target.com inurl:conversation"
+    ]}
+
+            ];
+
+            const dorkList = document.getElementById("dorkList");
+
+            dorks.forEach(category => {
+                const categoryTitle = document.createElement("h2");
+                categoryTitle.textContent = category.category;
+                dorkList.appendChild(categoryTitle);
+
+                category.dorks.forEach(dork => {
+                    originalDorks.push(dork);
+                    const listItem = createDorkListItem(dork, category.category);
+                    dorkList.appendChild(listItem);
+                });
+            });
+
+            filterDorks();
+        }
+
+        let prevTitle = '';
+
+        function createDorkListItem(dork, description) {
+            const googleLink = `https://www.google.com/search?q=${encodeURIComponent(dork)}`;
+
+            const listItem = document.createElement("li");
+
+            if (description && description !== prevTitle) {
+                const desc = document.createElement("p");
+                desc.textContent = description;
+                desc.classList.add("description");
+                listItem.appendChild(desc);
+                prevTitle = description;
+            }
+
+            const link = document.createElement("a");
+            link.href = googleLink;
+            link.textContent = dork;
+            link.classList.add("dorkLink");
+            link.target = "_blank";
+
+            listItem.appendChild(link);
+
+            return listItem;
+        }
+
+        function updateDomain() {
+            const domainInput = document.getElementById("domainInput");
+            const domains = domainInput.value.split(",").map(domain => domain.trim());
+
+            if (domains.length === 0) return;
+
+            const dorkLinks = document.querySelectorAll(".dorkLink");
+            dorkLinks.forEach((link, index) => {
+                let originalDork = originalDorks[index];
+
+                // Replace "target.com" with the entered domain(s)
+                const joinedDomains = domains.map(d => `site:*.${d}`).join(" | ");
+                originalDork = originalDork.replace(/site:\*\.target\.com/gi, joinedDomains);
+
+                // Replace "example.com" with the entered domain(s)
+                originalDork = originalDork.replace(/example\.com/gi, domains.join(" | "));
+
+                const updatedLink = `https://www.google.com/search?q=${encodeURIComponent(originalDork)}`;
+
+                link.textContent = originalDork;
+                link.href = updatedLink;
+            });
+        }
+
+        fetchDorks();
+
+        function filterDorks() {
+            const dorkItems = document.querySelectorAll("#dorkList li");
+            dorkItems.forEach(item => {
+                if (item.textContent.toLowerCase().includes("omit")) {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+    </script>
+    <h4>Inspired From <a href="https://taksec.github.io/google-dorks-bug-bounty/">TakSec Google Dork Page</a></h4>
+</body>
+</html>
